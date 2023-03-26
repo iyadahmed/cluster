@@ -53,16 +53,29 @@ int main(int argc, char **argv) {
     }
 
     std::vector<float3> vertices;
+    std::vector<size_t> indices;
+    size_t i = 0;
     STLBinaryTriangle t{};
     while (1 == fread(&t, sizeof(STLBinaryTriangle), 1, file)) {
         for (auto v: t.vertices) {
             vertices.push_back(v);
+            indices.push_back(i++);
         }
     }
 
-    std::sort(vertices.begin(), vertices.end());
-    auto it = std::unique(vertices.begin(), vertices.end());
-    std::cout << "Number of unique vertices = " << std::distance(vertices.begin(), it) << std::endl;
+    std::sort(indices.begin(), indices.end(), [&](size_t ai, size_t bi) {
+        return vertices[ai] < vertices[bi];
+    });
+    size_t current_unique_vertex_index = indices[0];
+    for (unsigned long long &index: indices) {
+        if (vertices[index] == vertices[current_unique_vertex_index]) {
+            index = current_unique_vertex_index;
+        } else {
+            current_unique_vertex_index = index;
+        }
+    }
+    auto it = std::unique(indices.begin(), indices.end());
+    std::cout << "Number of unique vertices = " << std::distance(indices.begin(), it) << std::endl;
 
     return EXIT_SUCCESS;
 }
