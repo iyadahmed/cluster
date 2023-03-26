@@ -4,8 +4,6 @@
 #include <vector>
 #include <iostream>
 
-#include "hash.h"
-
 using float3 = std::array<float, 3>;
 
 // pragma-packed in case you wanted to read an array of these from file
@@ -17,16 +15,6 @@ struct STLBinaryTriangle {
 };
 #pragma pack(pop)
 static_assert(sizeof(STLBinaryTriangle) == sizeof(float[3]) + sizeof(float[3][3]) + sizeof(uint16_t));
-
-//@param in data to hash
-//@returns 32-bit hash of in
-static uint32_t hash(float3 in) {
-    uint32_t h = 0;
-    h = int_hash32(h ^ __builtin_bit_cast(uint32_t, in[0]));
-    h = int_hash32(h ^ __builtin_bit_cast(uint32_t, in[1]));
-    h = int_hash32(h ^ __builtin_bit_cast(uint32_t, in[2]));
-    return h;
-}
 
 int main(int argc, char **argv) {
     if (argc != 2) {

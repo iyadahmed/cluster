@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
+#include <array>
 
 #ifndef __cplusplus
 #define __builtin_bit_cast(type, arg) ({ \
@@ -22,4 +23,14 @@ static inline uint32_t int_hash32(uint32_t x){
     x *= 0x31848babU;
     x ^= x >> 14;
     return x;
+}
+
+//@param in data to hash
+//@returns 32-bit hash of in
+static uint32_t hash(std::array<float, 3> in) {
+    uint32_t h = 0;
+    h = int_hash32(h ^ __builtin_bit_cast(uint32_t, in[0]));
+    h = int_hash32(h ^ __builtin_bit_cast(uint32_t, in[1]));
+    h = int_hash32(h ^ __builtin_bit_cast(uint32_t, in[2]));
+    return h;
 }

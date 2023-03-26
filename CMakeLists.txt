@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(cluster)
-add_executable(cluster cluster.cpp hash.h)
+add_executable(cluster cluster.cpp hash.hpp)
