@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     }
 
     fseek(file, 80, SEEK_SET); // Skip binary header
-    uint32_t num_reported_tris;
+    uint32_t num_reported_tris = 0;
     fread(&num_reported_tris, sizeof(uint32_t), 1, file);
     printf("Number of triangles = %u\n", num_reported_tris);
 
