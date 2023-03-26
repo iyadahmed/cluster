@@ -62,8 +62,9 @@ int main(int argc, char **argv) {
             current_unique_vertex_index = index;
         }
     }
-    auto it = std::unique(indices.begin(), indices.end());
-    std::cout << "Number of unique vertices = " << std::distance(indices.begin(), it) << std::endl;
+    auto last = std::unique(indices.begin(), indices.end());
+    std::cout << "Number of unique vertices = " << std::distance(indices.begin(), last) << std::endl;
+    indices.erase(last, indices.end());
 
     return EXIT_SUCCESS;
 }
