@@ -60,9 +60,8 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
     }
 
     std::cout << "Number of triangles reported by file = " << num_reported_tris << std::endl;
-
     if (num_reported_tris == 0) {
-        std::cerr << "Empty mesh" << std::endl;
+        std::cerr << "Empty mesh reported by file" << std::endl;
         return std::nullopt;
     }
 
