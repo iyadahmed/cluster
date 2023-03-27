@@ -91,12 +91,11 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
         return std::lexicographical_compare(v1, v1 + 3, v2, v2 + 3);
     });
 
+    // Build indexed mesh
     std::vector<glm::vec3> unique_vertices;
     unique_vertices.push_back(vertices[0].pos);
-
     std::vector<size_t> indices(vertices.size());
     indices[vertices[0].original_index] = 0;
-
     {
         size_t j = 0;
         size_t last_unique_vertex_index = 0;
