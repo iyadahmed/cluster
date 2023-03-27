@@ -81,6 +81,10 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
                     << std::endl;
         }
         std::cout << "Number of successfully read triangles = " << (i / 3) << std::endl;
+        if (i == 0) {
+            std::cerr << "Empty mesh" << std::endl;
+            return std::nullopt;
+        }
     }
 
     // Sort vertices lexicographically by their 3D position
@@ -108,6 +112,8 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
             indices[vertices[i].original_index] = last_unique_vertex_index;
         }
     }
+
+    std::cout << "Number of unique vertices = " << unique_vertices.size() << std::endl;
 
 #ifndef NDEBUG
     // Sanity check

@@ -16,9 +16,5 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    std::sort(mesh->indices.begin(), mesh->indices.end());
-    std::cout << std::distance(mesh->indices.begin(), std::unique(mesh->indices.begin(), mesh->indices.end())) << std::endl;
-    std::cout << "Number of unique vertices = " << mesh->unique_vertices.size() << std::endl;
-
     return EXIT_SUCCESS;
 }
