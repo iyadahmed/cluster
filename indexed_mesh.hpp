@@ -40,21 +40,29 @@ std::optional<std::array<glm::vec3, 3>> read_stl_binary_triangle(FILE *file) {
 }
 
 std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
-    printf("Reading mesh from %s\n", filepath);
+    std::cout << "Attempting to read binary STL mesh file from " << filepath << std::endl;
 
     FILE *file = fopen(filepath, "rb");
     if (file == nullptr) {
-        printf("Failed to open file\n");
+        std::cerr << "Failed to open file" << std::endl;
         return std::nullopt;
     }
 
-    fseek(file, 80, SEEK_SET); // Skip binary header
+    if (fseek(file, 80, SEEK_SET) != 0) {
+        std::cerr << "Failed to skip binary header" << std::endl;
+        return std::nullopt;
+    }
+
     uint32_t num_reported_tris = 0;
-    fread(&num_reported_tris, sizeof(uint32_t), 1, file);
-    printf("Number of triangles = %u\n", num_reported_tris);
+    if (fread(&num_reported_tris, sizeof(uint32_t), 1, file) != 1) {
+        std::cerr << "Failed to read number of triangles" << std::endl;
+        return std::nullopt;
+    }
+
+    std::cout << "Number of triangles reported by file = " << num_reported_tris << std::endl;
 
     if (num_reported_tris == 0) {
-        printf("Empty mesh\n");
+        std::cerr << "Empty mesh" << std::endl;
         return std::nullopt;
     }
 
@@ -68,6 +76,12 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
                 i++;
             }
         }
+        if (i != (num_reported_tris * 3)) {
+            std::cerr
+                    << "Warning: number of successfully read triangles does not match the number of triangles reported by file"
+                    << std::endl;
+        }
+        std::cout << "Number of successfully read triangles = " << (i / 3) << std::endl;
     }
 
     // Sort vertices lexicographically by their 3D position
