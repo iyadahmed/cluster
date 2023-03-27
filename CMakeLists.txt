@@ -5,4 +5,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(cluster)
-add_executable(cluster cluster.cpp hash.hpp)
+
+find_package(glm REQUIRED)
+
+add_executable(cluster main.cpp hash.hpp)
+target_link_libraries(cluster glm)
