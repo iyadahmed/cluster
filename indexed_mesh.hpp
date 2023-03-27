@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <optional>
+#include <memory>
 
 #include <glm/vec3.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -42,19 +43,21 @@ std::optional<std::array<glm::vec3, 3>> read_stl_binary_triangle(FILE *file) {
 std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
     std::cout << "Attempting to read binary STL mesh file from " << filepath << std::endl;
 
-    FILE *file = fopen(filepath, "rb");
+    auto file = std::unique_ptr<FILE, void (*)(FILE *)>(fopen(filepath, "rb"), [](FILE *ptr) {
+        fclose(ptr);
+    });
     if (file == nullptr) {
         std::cerr << "Failed to open file" << std::endl;
         return std::nullopt;
     }
 
-    if (fseek(file, 80, SEEK_SET) != 0) {
+    if (fseek(file.get(), 80, SEEK_SET) != 0) {
         std::cerr << "Failed to skip binary header" << std::endl;
         return std::nullopt;
     }
 
     uint32_t num_reported_tris = 0;
-    if (fread(&num_reported_tris, sizeof(uint32_t), 1, file) != 1) {
+    if (fread(&num_reported_tris, sizeof(uint32_t), 1, file.get()) != 1) {
         std::cerr << "Failed to read number of triangles" << std::endl;
         return std::nullopt;
     }
@@ -69,7 +72,7 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
     std::vector<Vertex> vertices;
     {
         size_t i = 0;
-        while (auto t = read_stl_binary_triangle(file)) {
+        while (auto t = read_stl_binary_triangle(file.get())) {
             for (glm::vec3 v: t.value()) {
                 vertices.push_back({v, i});
                 i++;
