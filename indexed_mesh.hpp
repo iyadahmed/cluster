@@ -111,6 +111,14 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
         }
     }
 
+#ifndef NDEBUG
+    // Sanity check
+    std::vector<size_t> indices_copy = indices;
+    std::sort(indices_copy.begin(), indices_copy.end());
+    auto it = std::unique(indices_copy.begin(), indices_copy.end());
+    assert(std::distance(indices_copy.begin(), it) == unique_vertices.size());
+#endif
+
     return IndexedMesh{unique_vertices, indices};
 }
 
