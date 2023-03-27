@@ -8,5 +8,5 @@ project(cluster)
 
 find_package(glm REQUIRED)
 
-add_executable(cluster main.cpp hash.hpp)
+add_executable(cluster main.cpp hash.hpp indexed_mesh.hpp)
 target_link_libraries(cluster glm)
