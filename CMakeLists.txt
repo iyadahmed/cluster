@@ -13,5 +13,7 @@ else()
     set(GLM_TARGET glm::glm)
 endif ()
 
+add_subdirectory(extern)
+
 add_executable(cluster main.cpp hash.hpp indexed_mesh.hpp)
-target_link_libraries(cluster ${GLM_TARGET})
+target_link_libraries(cluster ${GLM_TARGET} tiny_stl)

@@ -11,6 +11,7 @@
 
 #include <glm/vec3.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <tiny_stl.hpp>
 
 
 struct Vertex {
@@ -23,68 +24,24 @@ struct IndexedMesh {
     std::vector<size_t> indices;
 };
 
-
-std::optional<std::array<glm::vec3, 3>> read_stl_binary_triangle(FILE *file) {
-    // Skip normal
-    if (fseek(file, sizeof(glm::vec3), SEEK_CUR) != 0) {
-        return std::nullopt;
-    }
-    std::array<glm::vec3, 3> vertices{};
-    if (fread(vertices.data(), sizeof(glm::vec3[3]), 1, file) != 1) {
-        return std::nullopt;
-    }
-    // Skip "attribute_byte_count"
-    if (fseek(file, sizeof(uint16_t), SEEK_CUR) != 0) {
-        return std::nullopt;
-    }
-    return vertices;
-}
-
 std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
     std::cout << "Attempting to read binary STL mesh file from " << filepath << std::endl;
 
-    auto file = std::unique_ptr<FILE, void (*)(FILE *)>(fopen(filepath, "rb"), [](FILE *ptr) {
-        fclose(ptr);
-    });
-    if (file == nullptr) {
-        std::cerr << "Failed to open file" << std::endl;
-        return std::nullopt;
-    }
-
-    if (fseek(file.get(), 80, SEEK_SET) != 0) {
-        std::cerr << "Failed to skip binary header" << std::endl;
-        return std::nullopt;
-    }
-
-    uint32_t num_reported_tris = 0;
-    if (fread(&num_reported_tris, sizeof(uint32_t), 1, file.get()) != 1) {
-        std::cerr << "Failed to read number of triangles" << std::endl;
-        return std::nullopt;
-    }
-
-    std::cout << "Number of triangles reported by file = " << num_reported_tris << std::endl;
-    if (num_reported_tris == 0) {
-        std::cerr << "Empty mesh reported by file" << std::endl;
-        return std::nullopt;
-    }
+    auto reader = Tiny_STL::create_reader(filepath);
 
     // Read vertices
     std::vector<Vertex> vertices;
     {
-        size_t i = 0;
-        while (auto t = read_stl_binary_triangle(file.get())) {
-            for (glm::vec3 v: t.value()) {
-                vertices.push_back({v, i});
-                i++;
+        size_t vi = 0;
+        Tiny_STL::Triangle t;
+        while (reader->read_next_triangle(&t)) {
+            for (auto &vertex: t.vertices) {
+                vertices.push_back({{vertex[0], vertex[1], vertex[2]}, vi});
+                vi++;
             }
         }
-        if (i != (num_reported_tris * 3)) {
-            std::cerr
-                    << "Warning: number of successfully read triangles does not match the number of triangles reported by file"
-                    << std::endl;
-        }
-        std::cout << "Number of successfully read triangles = " << (i / 3) << std::endl;
-        if (i == 0) {
+        std::cout << "Successfully read " << vi << " vertices" << " (" << (vi / 3) << " triangles)" << std::endl;
+        if (vi == 0) {
             std::cerr << "Empty mesh" << std::endl;
             return std::nullopt;
         }
