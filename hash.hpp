@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <array>
 
+#include <glm/vec3.hpp>
+
 #ifndef __cplusplus
 #define __builtin_bit_cast(type, arg) ({ \
     (union{                              \
@@ -14,7 +16,7 @@
 
 // least-biased 32-bit hash
 // magic numbers and shifts from hash prospector
-static inline uint32_t int_hash32(uint32_t x){
+static inline uint32_t int_hash32(uint32_t x) {
     x ^= x >> 17;
     x *= 0xed5ad4bbU;
     x ^= x >> 11;
@@ -27,7 +29,7 @@ static inline uint32_t int_hash32(uint32_t x){
 
 //@param in data to hash
 //@returns 32-bit hash of in
-static uint32_t hash(std::array<float, 3> in) {
+static uint32_t hash(glm::vec3 in) {
     uint32_t h = 0;
     h = int_hash32(h ^ __builtin_bit_cast(uint32_t, in[0]));
     h = int_hash32(h ^ __builtin_bit_cast(uint32_t, in[1]));

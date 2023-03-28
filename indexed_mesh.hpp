@@ -9,6 +9,13 @@
 #include <optional>
 #include <memory>
 
+#ifndef NDEBUG
+// unordered_set with custom hash is used in sanity checks
+#include <unordered_set>
+#include "hash.hpp"
+
+#endif
+
 #include <glm/vec3.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <tiny_stl.hpp>
@@ -17,6 +24,10 @@
 struct Vertex {
     glm::vec3 pos;
     size_t original_index;
+
+    bool operator==(const Vertex &other) const {
+        return pos == other.pos;
+    }
 };
 
 struct IndexedMesh {
@@ -94,7 +105,13 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
     }
 
     // 2. Number of unique vertices == number of unique vertices obtained from a set with a hash function for floats
-    // TODO
+    struct VertexHash {
+        std::size_t operator()(Vertex v) const {
+            return hash(v.pos);
+        }
+    };
+    std::unordered_set<Vertex, VertexHash> vertices_set(vertices.begin(), vertices.end());
+    assert(unique_vertices.size() == vertices_set.size());
 
     // 3. Rebuilding non-indexed mesh matches original
     {
