@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
     char *folder_path = argv[1];
 
     for (const auto &entry: std::filesystem::directory_iterator(folder_path)) {
-        auto path = entry.path();
+        const std::filesystem::path &path = entry.path();
         if (path.extension() == ".stl") {
             auto mesh = read_indexed_mesh_from_stl((const char *) path.string().c_str());
         }
