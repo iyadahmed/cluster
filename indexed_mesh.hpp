@@ -90,6 +90,11 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
         }
     }
 
+#ifndef NDEBUG
+    // Make a copy of vertices before sorting for testing purposes
+    std::vector<Vertex> vertices_copy = vertices;
+#endif
+
     // Sort vertices lexicographically by their 3D position
     std::sort(vertices.begin(), vertices.end(), [](const Vertex &a, const Vertex &b) {
         const float *v1 = glm::value_ptr(a.pos);
@@ -119,11 +124,27 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
     std::cout << "Number of unique vertices = " << unique_vertices.size() << std::endl;
 
 #ifndef NDEBUG
-    // Sanity check
-    std::vector<size_t> indices_copy = indices;
-    std::sort(indices_copy.begin(), indices_copy.end());
-    auto it = std::unique(indices_copy.begin(), indices_copy.end());
-    assert(std::distance(indices_copy.begin(), it) == unique_vertices.size());
+    // TODO: use a testing framework
+    // Sanity checks
+    std::cerr << "Warning: debug build, running sanity checks" << std::endl;
+
+    // 1. Number of unique indices == number of unique vertices
+    {
+        std::vector<size_t> indices_copy = indices;
+        std::sort(indices_copy.begin(), indices_copy.end());
+        auto it = std::unique(indices_copy.begin(), indices_copy.end());
+        assert(std::distance(indices_copy.begin(), it) == unique_vertices.size());
+    }
+
+    // 2. Number of unique vertices == number of unique vertices obtained from a set with a hash function for floats
+    // TODO
+
+    // 3. Rebuilding non-indexed mesh matches original
+    {
+        for (size_t i = 0; i < indices.size(); i++) {
+            assert(unique_vertices[indices[i]] == vertices_copy[i].pos);
+        }
+    }
 #endif
 
     return IndexedMesh{unique_vertices, indices};
