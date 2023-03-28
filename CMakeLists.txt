@@ -9,7 +9,7 @@ project(cluster)
 find_package(glm REQUIRED)
 if (MINGW)
     set(GLM_TARGET glm)
-else()
+else ()
     set(GLM_TARGET glm::glm)
 endif ()
 
