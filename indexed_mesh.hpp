@@ -1,5 +1,4 @@
-#ifndef CLUSTER_INDEXED_TRI_MESH_HPP
-#define CLUSTER_INDEXED_TRI_MESH_HPP
+#pragma once
 
 #include <array>
 #include <algorithm>
@@ -123,5 +122,3 @@ std::optional<IndexedMesh> read_indexed_mesh_from_stl(const char *filepath) {
 
     return IndexedMesh{unique_vertices, indices};
 }
-
-#endif //CLUSTER_INDEXED_TRI_MESH_HPP
