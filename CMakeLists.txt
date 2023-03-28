@@ -9,7 +9,7 @@ project(cluster)
 add_subdirectory(extern/tiny_stl)
 
 set(FORCE_BUNDLED_GLM NO CACHE BOOL "Force the use of glm library from the extern folder instead of system's")
-if (NOT MSVC)
+if ((NOT ${FORCE_BUNDLED_GLM}) AND (NOT MSVC))
     find_package(glm)
 endif ()
 
