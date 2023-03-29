@@ -26,5 +26,5 @@ else ()
     set(GLM_TARGET glm)
 endif ()
 
-add_executable(cluster main.cpp indexed_mesh.cpp hash.hpp indexed_mesh.hpp)
+add_executable(cluster main.cpp indexed_mesh.cpp hash.hpp indexed_mesh.hpp bvh.hpp)
 target_link_libraries(cluster ${GLM_TARGET} tiny_stl)
