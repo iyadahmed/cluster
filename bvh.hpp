@@ -1,18 +1,23 @@
 #pragma once
 
 #include <vector>
+#include <numeric>
 
 #include <glm/vec3.hpp>
 #include <glm/common.hpp>
 
+#include "indexed_mesh.hpp"
+
 class BVH {
 public:
-    explicit BVH(const std::vector<glm::vec3> &input_vertices) {
-        vertices = input_vertices;
-        nodes.resize(2 * vertices.size());
-        build_tree(0, vertices.size() - 1);
+    explicit BVH(const IndexedMesh &input_mesh) {
+        mesh = input_mesh;
+        triangles.resize(mesh.indices.size() / 3);
+        std::iota(triangles.begin(), triangles.end(), 0);
 
-        assert(count_leaf_nodes(0) == vertices.size());
+        nodes.resize(2 * triangles.size());
+        build_tree(0, triangles.size() - 1);
+        assert(count_leaf_nodes(0) == triangles.size());
     }
 
     int count_leaf_nodes() {
@@ -30,7 +35,8 @@ private:
     };
 
     std::vector<Node> nodes;
-    std::vector<glm::vec3> vertices;
+    IndexedMesh mesh;
+    std::vector<size_t> triangles;
     int new_node_index = 0;
 
     int build_tree(int start, int last) {
@@ -38,16 +44,20 @@ private:
 
         Node &node = nodes[node_index];
 
-        node.upper = node.lower = vertices[start];
+        node.upper = node.lower = mesh.unique_vertices[mesh.indices[triangles[start] * 3]];
+
         for (int i = start; i <= last; i++) {
-            node.upper = glm::max(node.upper, vertices[i]);
-            node.lower = glm::min(node.lower, vertices[i]);
+            for (int vi = 0; vi < 3; vi++) {
+                glm::vec3 v = mesh.unique_vertices[mesh.indices[triangles[i] * 3 + vi]];
+                node.upper = glm::max(node.upper, v);
+                node.lower = glm::min(node.lower, v);
+            }
         }
 
         if (start == last) {
             node.left = node.right = start;
         } else {
-            // TODO: partition vertices
+            // TODO: partition triangles
             int mid = start / 2 + last / 2;
             node.left = build_tree(start, mid);
             node.right = build_tree(mid + 1, last);
@@ -68,7 +78,13 @@ private:
     bool contains_point(int node_index, glm::vec3 point) {
         Node node = nodes[node_index];
         if (node.left == node.right) {
-            return vertices[node.left] == point;
+            for (int vi = 0; vi < 3; vi++) {
+                glm::vec3 v = mesh.unique_vertices[mesh.indices[triangles[node.left] * 3 + vi]];
+                if (v == point) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         return contains_point(node.left, point) || contains_point(node.right, point);

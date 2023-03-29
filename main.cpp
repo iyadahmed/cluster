@@ -26,7 +26,8 @@ int main(int argc, char **argv) {
         mesh = read_indexed_mesh_from_stl(input_path);
     }
 
-    BVH bvh(mesh.unique_vertices);
+    BVH bvh(mesh);
+    std::cout << bvh.contains_point(mesh.unique_vertices[0]) << std::endl;
 
     return 0;
 }

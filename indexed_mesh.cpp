@@ -38,7 +38,7 @@ IndexedMesh read_indexed_mesh_from_stl(const char *filepath) {
         num_successfully_read_triangles++;
     }
     std::cout << "Successfully read " << num_successfully_read_triangles << " triangles" << std::endl;
-    std::cout << "Number of unique vertices = " << unique_vertices.size() << std::endl;
+    std::cout << "Number of unique mesh = " << unique_vertices.size() << std::endl;
 
     return IndexedMesh{unique_vertices, indices};
 }
