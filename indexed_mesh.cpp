@@ -20,11 +20,10 @@ IndexedMesh read_indexed_mesh_from_stl(const char *filepath) {
     while (reader->read_next_triangle(&t)) {
         for (auto &vertex: t.vertices) {
             glm::vec3 v(vertex[0], vertex[1], vertex[2]);
-            auto it = vertex_map.find(v);
-            if (it == vertex_map.end()) {
+            auto [it, inserted] = vertex_map.try_emplace(v, vi);
+            if (inserted) {
                 // Vertex does not exist in map
                 unique_vertices.push_back(v);
-                vertex_map[v] = vi;
                 indices.push_back(vi);
                 vi++;
             } else {
