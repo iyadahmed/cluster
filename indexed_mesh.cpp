@@ -1,3 +1,8 @@
+#include <iostream>
+#include <unordered_map>
+
+#include <tiny_stl.hpp>
+
 #include "indexed_mesh.hpp"
 
 IndexedMesh read_indexed_mesh_from_stl(const char *filepath) {

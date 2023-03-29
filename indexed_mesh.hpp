@@ -1,12 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <iostream>
-#include <unordered_map>
 
 #include <glm/vec3.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <tiny_stl.hpp>
 
 struct IndexedMesh {
     std::vector<glm::vec3> unique_vertices;
