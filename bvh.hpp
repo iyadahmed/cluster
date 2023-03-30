@@ -7,6 +7,8 @@
 #include <glm/common.hpp>
 
 #include "indexed_mesh.hpp"
+#include "aabb_ray_intersection.hpp"
+#include "triangle_ray_intersection.hpp"
 
 class BVH {
 public:
@@ -26,6 +28,10 @@ public:
 
     bool contains_point(glm::vec3 point) {
         return contains_point(0, point);
+    }
+
+    bool intersect_ray(glm::vec3 origin, glm::vec3 direction, float &t) {
+        return intersect_ray(0, origin, direction, t);
     }
 
 private:
@@ -88,5 +94,27 @@ private:
         }
 
         return contains_point(node.left, point) || contains_point(node.right, point);
+    }
+
+    bool intersect_ray(int node_index, glm::vec3 origin, glm::vec3 direction, float &t) {
+        Node &node = nodes[node_index];
+        float tmin, tmax;
+        if (!ray_aabb_intersect(origin, direction, node.lower, node.upper, tmin, tmax)) {
+            return false;
+        }
+
+        if (node.left == node.right) {
+            glm::vec3 v1 = mesh.unique_vertices[mesh.indices[triangles[node.left] * 3 + 0]];
+            glm::vec3 v2 = mesh.unique_vertices[mesh.indices[triangles[node.left] * 3 + 1]];
+            glm::vec3 v3 = mesh.unique_vertices[mesh.indices[triangles[node.left] * 3 + 2]];
+            float local_t;
+            if (ray_triangle_intersect(origin, direction, v1, v2, v3, local_t)) {
+                t = std::min(t, local_t);
+                return true;
+            }
+            return false;
+        }
+
+        return intersect_ray(node.left, origin, direction, t) || intersect_ray(node.right, origin, direction, t);
     }
 };
